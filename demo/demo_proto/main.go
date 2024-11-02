@@ -5,11 +5,13 @@ import (
 	"net"
 	"time"
 
+	"github.com/LXJ0000/gomall/demo/demo_proto/biz/dal"
 	"github.com/LXJ0000/gomall/demo/demo_proto/conf"
 	"github.com/LXJ0000/gomall/demo/demo_proto/kitex_gen/pbapi/echo"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	"github.com/joho/godotenv"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
@@ -17,12 +19,16 @@ import (
 )
 
 func main() {
+	// load env
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
+	dal.Init()
 	opts := kitexInit()
 
 	svr := echo.NewServer(new(EchoImpl), opts...)
 
-	err := svr.Run()
-	if err != nil {
+	if err := svr.Run(); err != nil {
 		klog.Error(err.Error())
 	}
 }
