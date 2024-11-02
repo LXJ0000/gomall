@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/LXJ0000/gomall/demo/demo_proto/biz/model"
 	"github.com/LXJ0000/gomall/demo/demo_proto/conf"
 
 	"gorm.io/driver/mysql"
@@ -28,6 +29,9 @@ func Init() {
 			PrepareStmt:            true,
 			SkipDefaultTransaction: true,
 		},
+	)
+	DB.AutoMigrate(
+		&model.User{},
 	)
 	if err != nil {
 		panic(err)

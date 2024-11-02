@@ -8,6 +8,7 @@ import (
 	"github.com/LXJ0000/gomall/demo/demo_proto/biz/dal"
 	"github.com/LXJ0000/gomall/demo/demo_proto/conf"
 	"github.com/LXJ0000/gomall/demo/demo_proto/kitex_gen/pbapi/echo"
+	"github.com/LXJ0000/gomall/demo/demo_proto/middleware"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -34,6 +35,9 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// middleware
+	opts = append(opts, server.WithMiddleware(middleware.Middleware))
+
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
