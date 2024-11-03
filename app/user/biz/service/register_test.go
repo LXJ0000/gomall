@@ -20,7 +20,7 @@ func TestRegister_Run(t *testing.T) {
 	// init req and assert value
 
 	req := &user.RegisterReq{
-		Email:           "12278911081211@qq.com",
+		Email:           "1227819110811211@qq.com",
 		Password:        "12345161",
 		ConfirmPassword: "12345161",
 	}

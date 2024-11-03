@@ -9,34 +9,46 @@ import (
 	"github.com/LXJ0000/gomall/app/gateway/biz/router"
 	"github.com/LXJ0000/gomall/app/gateway/conf"
 	"github.com/LXJ0000/gomall/app/gateway/infra/rpc"
-	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/LXJ0000/gomall/common/mtl"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
+	hertzprom "github.com/hertz-contrib/monitor-prometheus"
 	"github.com/hertz-contrib/pprof"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
+	// load env
+	// godotenv.Load()
+	// mtl init
+	consul, registryInfo := mtl.InitMetric(conf.GetConf().Hertz.Service, conf.GetConf().Hertz.MetricsPort, conf.GetConf().Hertz.RegistryAddr)
+	defer consul.Deregister(registryInfo)
 	// init rpc client
 	rpc.Init()
 
 	address := conf.GetConf().Hertz.Address
-	h := server.New(server.WithHostPorts(address))
+	h := server.New(server.WithHostPorts(address), server.WithTracer( // 添加 prometheus 中间件到 hertz
+		hertzprom.NewServerTracer(
+			"",
+			"",
+			hertzprom.WithDisableServer(true),
+			hertzprom.WithRegistry(mtl.Registry),
+		),
+	),
+	)
 
 	registerMiddleware(h)
 
 	// add a ping route to test
-	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-		ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
-	})
+	// h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+	// 	ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+	// })
 	router.GeneratedRegister(h)
 
 	h.Spin()

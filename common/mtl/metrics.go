@@ -12,29 +12,40 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var Registry *prometheus.Registry
+var Registry *prometheus.Registry // 注册中心 用来注册指标
 
-func InitMetric(serviceName, metricsPort, registryAddr string) {
+func InitMetric(serviceName, metricsPort, registryAddr string) (registry.Registry, *registry.Info) {
 	Registry = prometheus.NewRegistry()
 	Registry.MustRegister(collectors.NewGoCollector())
 	Registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
-	r, _ := consul.NewConsulRegister(registryAddr)
-	addr, _ := net.ResolveTCPAddr("tcp", metricsPort)
-	registryInfo := &registry.Info{
-		ServiceName: "prometheus",
+	r, err := consul.NewConsulRegister(registryAddr)
+	if err != nil {
+		panic(err)
+	}
+	addr, err := net.ResolveTCPAddr("tcp", "172.24.100.140"+metricsPort)
+	if err != nil {
+		panic(err)
+	}
+	registryInfo := &registry.Info{ // 注册的信息
+		ServiceName: "prometheus", // 服务名 把指标服务统一注册到名为 prometheus 的服务中心
 		Addr:        addr,
 		Weight:      1,
 		Tags: map[string]string{
 			"service": serviceName,
 		},
 	}
-	_ = r.Register(registryInfo)
-
+	if err := r.Register(registryInfo); err != nil {
+		panic(err)
+	}
 	server.RegisterShutdownHook(func() {
-		r.Deregister(registryInfo)
+		if err := r.Deregister(registryInfo); err != nil {
+			panic(err)
+		}
 	})
 
 	http.Handle("/metrics", promhttp.HandlerFor(Registry, promhttp.HandlerOpts{}))
 
-	go http.ListenAndServe(metricsPort, nil)
+	go http.ListenAndServe(metricsPort, nil) // 启动一个 http 服务，用来被 prometheus 抓取指标
+
+	return r, registryInfo
 }

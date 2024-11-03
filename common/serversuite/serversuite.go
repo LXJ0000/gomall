@@ -23,9 +23,9 @@ func (s CommonServerSuite) Options() []server.Option {
 		}),
 		server.WithTracer(
 			prometheus.NewServerTracer("", "",
-				prometheus.WithDisableServer(true),
+				prometheus.WithDisableServer(true), // 关闭中间件默认的 metrics server
 				prometheus.WithRegistry(mtl.Registry)),
-		), // 关闭中间件默认的 metrics server
+		),
 	}
 
 	// consul

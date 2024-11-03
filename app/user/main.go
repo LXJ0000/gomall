@@ -21,7 +21,9 @@ import (
 
 func main() {
 	// load env
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
 	// mtl init
 	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort, conf.GetConf().Registry.RegistryAddress[0])
 	// mq init

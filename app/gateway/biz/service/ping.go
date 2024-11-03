@@ -23,5 +23,5 @@ func (h *PingService) Run(req *common.Empty) (resp *ping.PingResponse, err error
 	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
 	// todo edit your code
-	return
+	return &ping.PingResponse{Message: "pong"}, nil
 }
