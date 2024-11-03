@@ -2,31 +2,30 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"time"
 
 	"github.com/LXJ0000/gomall/app/user/biz/dal"
 	"github.com/LXJ0000/gomall/app/user/conf"
 	"github.com/LXJ0000/gomall/app/user/infra/mq"
+	"github.com/LXJ0000/gomall/common/mtl"
+	"github.com/LXJ0000/gomall/common/serversuite"
 	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/joho/godotenv"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
+	// load env
+	_ = godotenv.Load()
+	// mtl init
+	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort, conf.GetConf().Registry.RegistryAddress[0])
 	// mq init
 	mq.Init()
-	// load env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
 	// init dal
 	dal.Init()
 
@@ -47,19 +46,12 @@ func kitexInit() (opts []server.Option) {
 	if err != nil {
 		panic(err)
 	}
-	opts = append(opts, server.WithServiceAddr(addr))
-
-	// service info
-	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-		ServiceName: conf.GetConf().Kitex.Service,
-	}))
-
-	// consul
-	r, err := consul.NewConsulRegister("127.0.0.1:8500")
-	if err != nil {
-		log.Fatal(err)
-	}
-	opts = append(opts, server.WithRegistry(r))
+	opts = append(opts, server.WithServiceAddr(addr),
+		server.WithSuite(serversuite.CommonServerSuite{
+			CurrentServiceName: conf.GetConf().Kitex.Service,
+			RegistryAddr:       conf.GetConf().Registry.RegistryAddress[0],
+		}),
+	)
 
 	// klog
 	logger := kitexlogrus.NewLogger()
