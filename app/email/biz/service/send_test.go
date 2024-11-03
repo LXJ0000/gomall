@@ -3,18 +3,15 @@ package service
 import (
 	"context"
 	"testing"
-
-	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user"
+	email "github.com/LXJ0000/gomall/app/email/kitex_gen/email"
 )
 
-func TestLogin_Run(t *testing.T) {
+func TestSend_Run(t *testing.T) {
 	ctx := context.Background()
-	s := NewLoginService(ctx)
+	s := NewSendService(ctx)
 	// init req and assert value
 
-	req := &user.LoginReq{
-		
-	}
+	req := &email.EmailReq{}
 	resp, err := s.Run(req)
 	t.Logf("err: %v", err)
 	t.Logf("resp: %v", resp)

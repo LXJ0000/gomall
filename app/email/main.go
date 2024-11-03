@@ -1,21 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net"
 	"time"
 
-	"github.com/LXJ0000/gomall/app/user/biz/dal"
-	"github.com/LXJ0000/gomall/app/user/conf"
-	"github.com/LXJ0000/gomall/app/user/infra/mq"
-	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user/userservice"
+	"github.com/LXJ0000/gomall/app/email/biz/consumer"
+	"github.com/LXJ0000/gomall/app/email/conf"
+	"github.com/LXJ0000/gomall/app/email/infra/mq"
+	"github.com/LXJ0000/gomall/app/email/kitex_gen/email/emailservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/joho/godotenv"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -23,20 +19,14 @@ import (
 func main() {
 	// mq init
 	mq.Init()
-	// load env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-	// init dal
-	dal.Init()
-
+	// consumer init
+	consumer.Init()
 	opts := kitexInit()
 
-	svr := userservice.NewServer(new(UserServiceImpl), opts...)
+	svr := emailservice.NewServer(new(EmailServiceImpl), opts...)
 
 	err := svr.Run()
 	if err != nil {
-		fmt.Println(err)
 		klog.Error(err.Error())
 	}
 }
@@ -53,13 +43,6 @@ func kitexInit() (opts []server.Option) {
 	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
-
-	// consul
-	r, err := consul.NewConsulRegister("127.0.0.1:8500")
-	if err != nil {
-		log.Fatal(err)
-	}
-	opts = append(opts, server.WithRegistry(r))
 
 	// klog
 	logger := kitexlogrus.NewLogger()

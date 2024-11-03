@@ -1,4 +1,8 @@
 export CMD_ROOT=github.com/LXJ0000/gomall
+.PHONY: consul
+consul:
+	@consul agent -dev -client=0.0.0.0
+
 .PHONY: gen-gateway
 gen-gateway:
 	@cd app/gateway && cwgo server --type HTTP -I ../../idl/ --idl  ../../idl/gateway/ping.proto --service gateway --module ${CMD_ROOT}/app/gateway
@@ -33,3 +37,8 @@ gen-payment:
 gen-checkout:
 	@cd rpc_gen && cwgo client --type RPC --service checkout --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/checkout.proto
 	@cd app/checkout && cwgo server --type RPC --service checkout --module ${CMD_ROOT}/app/checkout --I ../../idl --idl ../../idl/checkout.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-email
+gen-email:
+	@cd rpc_gen && cwgo client --type RPC --service email --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/email.proto
+	@cd app/email && cwgo server --type RPC --service email --module ${CMD_ROOT}/app/email --I ../../idl --idl ../../idl/email.proto --pass "use ${CMD_ROOT}/rpc_gen"

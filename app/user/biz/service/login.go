@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/LXJ0000/gomall/app/user/biz/dal/mysql"
-	user "github.com/LXJ0000/gomall/app/user/kitex_gen/user"
 	"github.com/LXJ0000/gomall/app/user/model"
+	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user" // 这里使用远程库
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,7 +33,8 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 	if err != nil {
 		return nil, errors.New("password is incorrect")
 	}
-	return &user.LoginResp{
+	resp = &user.LoginResp{
 		UserId: int32(row.ID),
-	}, nil
+	}
+	return
 }

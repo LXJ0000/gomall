@@ -6,21 +6,23 @@ import (
 	"testing"
 
 	"github.com/LXJ0000/gomall/app/user/biz/dal/mysql"
-	user "github.com/LXJ0000/gomall/app/user/kitex_gen/user"
+	"github.com/LXJ0000/gomall/app/user/infra/mq"
+	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user"
 	"github.com/joho/godotenv"
 )
 
 func TestRegister_Run(t *testing.T) {
 	godotenv.Load("../../.env")
 	mysql.Init() // TODO modify dns
+	mq.Init()
 	ctx := context.Background()
 	s := NewRegisterService(ctx)
 	// init req and assert value
 
 	req := &user.RegisterReq{
-		Email:           "1227891082@qq.com",
-		Password:        "123456",
-		ConfirmPassword: "123456",
+		Email:           "12278911081211@qq.com",
+		Password:        "12345161",
+		ConfirmPassword: "12345161",
 	}
 	resp, err := s.Run(req)
 	t.Logf("err: %v", err)

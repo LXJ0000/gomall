@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/LXJ0000/gomall/app/user/conf"
 	"github.com/LXJ0000/gomall/app/user/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -17,7 +16,7 @@ var (
 )
 
 func Init() {
-	dns := fmt.Sprintf(conf.GetConf().MySQL.DSN,
+	dns := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
