@@ -8,3 +8,8 @@ gen-gateway:
 gen-user:
 	@cd rpc_gen && cwgo client --type RPC --service user --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/user.proto
 	@cd app/user && cwgo server --type RPC --service user --module ${CMD_ROOT}/app/user --I ../../idl --idl ../../idl/user.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-product
+gen-product:
+	@cd rpc_gen && cwgo client --type RPC --service product --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/product.proto
+	@cd app/product && cwgo server --type RPC --service product --module ${CMD_ROOT}/app/product --I ../../idl --idl ../../idl/product.proto --pass "use ${CMD_ROOT}/rpc_gen"
