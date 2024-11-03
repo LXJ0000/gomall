@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package gateway.auth;
+
+import "api.proto";
+import "gateway/common.proto";
+
+option go_package = "/gateway/auth";
+
+message RegisterReq {
+    string email = 1 [(api.form) = "email"];
+    string password = 2 [(api.form) = "password"];
+    string confirm_password = 3 [(api.form) = "confirm_password"];
+}
+
+message LoginReq {
+    string email = 1 [(api.form) = "email"];
+    string password = 2 [(api.form) = "password"];
+    string next = 3 [(api.query) = "next"];
+}
+
+message RegisterResp {
+    int32 user_id = 1;
+
+}
+
+message LoginResp {
+    int32 user_id = 1;
+}
+
+service AuthService {
+    rpc register(RegisterReq) returns (RegisterResp) {
+        option (api.post) = "/auth/register/1";
+    }
+    rpc login(LoginReq) returns (LoginResp) {
+        option (api.post) = "/auth/login/1";
+    }
+    rpc logout(common.Empty) returns (common.Empty) {
+        option (api.post) = "/auth/logout";
+    }
+}
