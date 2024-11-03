@@ -13,3 +13,8 @@ gen-user:
 gen-product:
 	@cd rpc_gen && cwgo client --type RPC --service product --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/product.proto
 	@cd app/product && cwgo server --type RPC --service product --module ${CMD_ROOT}/app/product --I ../../idl --idl ../../idl/product.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-cart
+gen-cart:
+	@cd rpc_gen && cwgo client --type RPC --service cart --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/cart.proto
+	@cd app/cart && cwgo server --type RPC --service cart --module ${CMD_ROOT}/app/cart --I ../../idl --idl ../../idl/cart.proto --pass "use ${CMD_ROOT}/rpc_gen"
