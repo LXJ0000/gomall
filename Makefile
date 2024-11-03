@@ -18,3 +18,18 @@ gen-product:
 gen-cart:
 	@cd rpc_gen && cwgo client --type RPC --service cart --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/cart.proto
 	@cd app/cart && cwgo server --type RPC --service cart --module ${CMD_ROOT}/app/cart --I ../../idl --idl ../../idl/cart.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-order
+gen-order:
+	@cd rpc_gen && cwgo client --type RPC --service order --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/order.proto
+	@cd app/order && cwgo server --type RPC --service order --module ${CMD_ROOT}/app/order --I ../../idl --idl ../../idl/order.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-payment
+gen-payment:
+	@cd rpc_gen && cwgo client --type RPC --service payment --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/payment.proto
+	@cd app/payment && cwgo server --type RPC --service payment --module ${CMD_ROOT}/app/payment --I ../../idl --idl ../../idl/payment.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-checkout
+gen-checkout:
+	@cd rpc_gen && cwgo client --type RPC --service checkout --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/checkout.proto
+	@cd app/checkout && cwgo server --type RPC --service checkout --module ${CMD_ROOT}/app/checkout --I ../../idl --idl ../../idl/checkout.proto --pass "use ${CMD_ROOT}/rpc_gen"
