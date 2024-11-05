@@ -2,12 +2,13 @@ package mysql
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/LXJ0000/gomall/app/user/model"
+	"github.com/LXJ0000/gomall/app/user/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 var (
@@ -29,10 +30,15 @@ func Init() {
 			SkipDefaultTransaction: true,
 		},
 	)
-	DB.AutoMigrate(
-		&model.User{},
-	)
-	if err != nil {
-		log.Fatal(err)
+	utils.MustHandleError(err)
+
+	err = DB.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
+	utils.MustHandleError(err)
+
+	if os.Getenv("GO_ENV") != "online" {
+		err := DB.AutoMigrate(
+			&model.User{},
+		)
+		utils.MustHandleError(err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
 	prometheus "github.com/kitex-contrib/monitor-prometheus"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	consul "github.com/kitex-contrib/registry-consul"
 )
 
@@ -26,6 +27,7 @@ func (s CommonServerSuite) Options() []server.Option {
 				prometheus.WithDisableServer(true), // 关闭中间件默认的 metrics server
 				prometheus.WithRegistry(mtl.Registry)),
 		),
+		server.WithSuite(tracing.NewServerSuite()),
 	}
 
 	// consul

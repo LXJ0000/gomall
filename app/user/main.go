@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
@@ -19,13 +20,21 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+var (
+	serviceName  = conf.GetConf().Kitex.Service
+	registryAddr = conf.GetConf().Registry.RegistryAddress[0]
+)
+
 func main() {
 	// load env
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
+	// tracing init
+	p := mtl.InitTracing(serviceName)
+	defer p.Shutdown(context.Background()) // 服务关闭之前把剩余的链路都上传完毕 （定时分批上次）
 	// mtl init
-	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort, conf.GetConf().Registry.RegistryAddress[0])
+	mtl.InitMetric(serviceName, conf.GetConf().Kitex.MetricsPort, registryAddr)
 	// mq init
 	mq.Init()
 	// init dal
@@ -50,8 +59,8 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr),
 		server.WithSuite(serversuite.CommonServerSuite{
-			CurrentServiceName: conf.GetConf().Kitex.Service,
-			RegistryAddr:       conf.GetConf().Registry.RegistryAddress[0],
+			CurrentServiceName: serviceName,
+			RegistryAddr:       registryAddr,
 		}),
 	)
 
@@ -70,7 +79,7 @@ func kitexInit() (opts []server.Option) {
 	}
 	klog.SetOutput(asyncWriter)
 	server.RegisterShutdownHook(func() {
-		asyncWriter.Sync()
+		_ = asyncWriter.Sync()
 	})
 	return
 }

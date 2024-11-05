@@ -18,19 +18,30 @@ import (
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
 	hertzprom "github.com/hertz-contrib/monitor-prometheus"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	serviceName  = conf.GetConf().Hertz.Service
+	registryAddr = conf.GetConf().Hertz.RegistryAddr
 )
 
 func main() {
 	// load env
 	// godotenv.Load()
 	// mtl init
-	consul, registryInfo := mtl.InitMetric(conf.GetConf().Hertz.Service, conf.GetConf().Hertz.MetricsPort, conf.GetConf().Hertz.RegistryAddr)
+	consul, registryInfo := mtl.InitMetric(serviceName, conf.GetConf().Hertz.MetricsPort, registryAddr)
 	defer consul.Deregister(registryInfo)
+	// tracing init
+	p := mtl.InitTracing(serviceName)
+	defer p.Shutdown(context.Background()) // 服务关闭之前把剩余的链路都上传完毕 （定时分批上次）
 	// init rpc client
 	rpc.Init()
+
+	tracer, cfg := hertztracing.NewServerTracer()
 
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address), server.WithTracer( // 添加 prometheus 中间件到 hertz
@@ -41,7 +52,10 @@ func main() {
 			hertzprom.WithRegistry(mtl.Registry),
 		),
 	),
+		tracer,
 	)
+
+	h.Use(hertztracing.ServerMiddleware(cfg))
 
 	registerMiddleware(h)
 

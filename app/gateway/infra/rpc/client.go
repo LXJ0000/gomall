@@ -5,9 +5,9 @@ import (
 
 	"github.com/LXJ0000/gomall/app/gateway/conf"
 	"github.com/LXJ0000/gomall/app/gateway/utils"
+	"github.com/LXJ0000/gomall/common/clientsuite"
 	"github.com/LXJ0000/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/client"
-	consul "github.com/kitex-contrib/registry-consul"
 )
 
 var (
@@ -23,10 +23,7 @@ func Init() {
 }
 
 func initUserClient() {
-	resolver, err := consul.NewConsulResolver(conf.GetConf().Hertz.RegistryAddr)
-	utils.MustHandleError(err)
-
-	c, err := userservice.NewClient("user", client.WithResolver(resolver))
+	c, err := userservice.NewClient("user", client.WithSuite(clientsuite.CommonClientSuite{CurrentServiceName: conf.GetConf().Hertz.Address, RegistryAddr: conf.GetConf().Hertz.RegistryAddr}))
 	utils.MustHandleError(err)
 
 	UserClient = c
