@@ -5,6 +5,7 @@ consul:
 
 .PHONY: gen-gateway
 gen-gateway:
+	@cd app/gateway && cwgo server --type HTTP -I ../../idl/ --idl  ../../idl/gateway/common.proto --service gateway --module ${CMD_ROOT}/app/gateway
 	@cd app/gateway && cwgo server --type HTTP -I ../../idl/ --idl  ../../idl/gateway/ping.proto --service gateway --module ${CMD_ROOT}/app/gateway
 	@cd app/gateway && cwgo server --type HTTP -I ../../idl/ --idl  ../../idl/gateway/auth.proto --service gateway --module ${CMD_ROOT}/app/gateway
 
@@ -42,3 +43,8 @@ gen-checkout:
 gen-email:
 	@cd rpc_gen && cwgo client --type RPC --service email --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/email.proto
 	@cd app/email && cwgo server --type RPC --service email --module ${CMD_ROOT}/app/email --I ../../idl --idl ../../idl/email.proto --pass "use ${CMD_ROOT}/rpc_gen"
+
+.PHONY: gen-code
+gen-code:
+	@cd rpc_gen && cwgo client --type RPC --service code --module ${CMD_ROOT}/rpc_gen --I ../idl --idl ../idl/code.proto
+	@cd app/code && cwgo server --type RPC --service code --module ${CMD_ROOT}/app/code --I ../../idl --idl ../../idl/code.proto --pass "use ${CMD_ROOT}/rpc_gen"

@@ -40,3 +40,13 @@ func _register0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _loginsmscodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _sendsmscodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

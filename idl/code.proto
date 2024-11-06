@@ -1,0 +1,27 @@
+syntax="proto3";
+
+package code;
+
+option go_package="/code";
+
+service CodeService {
+    rpc Send(SendReq) returns (SendResp) {}
+    rpc Verify(VerifyReq) returns (VerifyResp) {}
+}
+
+message SendReq {
+    string phone = 1;
+    string biz = 2;
+}
+
+message SendResp {
+}
+
+message VerifyReq {
+    string phone = 1;
+    string biz = 2;
+    string code = 3;
+}
+
+message VerifyResp {
+}

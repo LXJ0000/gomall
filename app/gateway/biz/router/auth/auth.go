@@ -19,14 +19,10 @@ func Register(r *server.Hertz) {
 	root := r.Group("/", rootMw()...)
 	{
 		_auth := root.Group("/auth", _authMw()...)
+		_auth.POST("/login", append(_loginMw(), auth.Login)...)
+		_auth.POST("/login.sms.code", append(_loginsmscodeMw(), auth.LoginSmsCode)...)
 		_auth.POST("/logout", append(_logoutMw(), auth.Logout)...)
-		{
-			_login := _auth.Group("/login", _loginMw()...)
-			_login.POST("/1", append(_login0Mw(), auth.Login)...)
-		}
-		{
-			_register := _auth.Group("/register", _registerMw()...)
-			_register.POST("/1", append(_register0Mw(), auth.Register)...)
-		}
+		_auth.POST("/register", append(_registerMw(), auth.Register)...)
+		_auth.POST("/send.sms.code", append(_sendsmscodeMw(), auth.SendSmsCode)...)
 	}
 }
